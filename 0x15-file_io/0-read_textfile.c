@@ -1,46 +1,36 @@
 #include "main.h"
-#include <stdlib.h>
+
 /**
-  * read_textfile - it reads a text file and it prints it to the POSIX stdout
-  * @filename: file to read
-  * @letters: the number of letters it will read and print
-  * return: the number of letters it will read and read or 0 if it fails
-  */
+ * read_textfile - reads a text file and prints the letters
+ * @filename: filename.
+ * @letters: numbers of letters printed.
+ *
+ * Return: numbers of letters printed. It fails, returns 0.
+ */
 ssize_t read_textfile(const char *filename, size_t letters)
 {
-	char *buff;
-	int of;
-	size_t lRead, check;
+	int fd;
+	ssize_t nrd, nwr;
+	char *buf;
 
-	if (!filename || !letters)
+	if (!filename)
 		return (0);
 
-	buff = malloc(letters);
-	if (!buff)
-		return (0);
-	/* open file */
-	of = open(filename, O_RDONLY);
-	if (of == -1)
-	{
-		free(buff);
-		return (0);
-	}
-	/* read file up to "letters" amount of charachters */
-	lRead = read(of, buff, letters);
-	if (lRead < 1)
-	{
-		free(buff);
-		close(of);
-		return (0);
-	}
-	/* write content read */
-	check = write(STDOUT_FILENO, buff, lRead);
+	fd = open(filename, O_RDONLY);
 
-	free(buff);
-	close(of);
-
-	if (!check || check != lRead)
+	if (fd == -1)
 		return (0);
 
-	return (lRead);
+	buf = malloc(sizeof(char) * (letters));
+	if (!buf)
+		return (0);
+
+	nrd = read(fd, buf, letters);
+	nwr = write(STDOUT_FILENO, buf, nrd);
+
+	close(fd);
+
+	free(buf);
+
+	return (nwr);
 }
